@@ -38,7 +38,7 @@ fetch_career_js <- function(player_name) {
 # Convert raw JavaScript text into R match records
 parse_career_js <- function(js_text) {
   start <- regexpr("[", js_text, fixed = TRUE)[1]
-  end <- tail(gregexpr("]", js_text, fixed = TRUE)[[1]], 1)
+  end <- utils::tail(gregexpr("]", js_text, fixed = TRUE)[[1]], 1)
 
   if (start < 1 || end < start) {
     stop("No valid match data found.", call. = FALSE)
@@ -109,23 +109,13 @@ get_player_birth <- function(player_name) {
   url <- sub("Career\\.js$", ".js", career_data_url(player_name))
 
   js <- tryCatch(
-    readLines(url, warn = FALSE),
-    error = function(e) stop("Could not retrieve player profile.", call. = FALSE)
+    suppressWarnings(readLines(url, warn = FALSE)),
+    error = function(e) {
+      stop("Could not retrieve player profile.", call. = FALSE)
+    }
   )
 
-  dob_line <- grep("var dob\\s*=\\s*[0-9]{8}", js,
-                   value = TRUE, perl = TRUE)
-
-  if (length(dob_line) != 1L) {
-    stop("Player birth date not found.", call. = FALSE)
-  }
-
-  dob <- sub(".*dob\\s*=\\s*([0-9]{8}).*", "\\1",
-             dob_line, perl = TRUE)
-  birth <- as.Date(dob, format = "%Y%m%d")
-
-  if (is.na(birth)) stop("Invalid player birth date.", call. = FALSE)
-  birth
+  parse_player_birth(js)
 }
 
 # Calculate the player's age at each match
@@ -180,4 +170,25 @@ get_career_data <- function(player_name) {
   df <- add_player_age(df, player_name)
   df <- add_age_difference(df)
   clean_career_data(df)
+}
+
+# Extract a player's birthday from JavaScript data
+parse_player_birth <- function(js_lines) {
+  dob_line <- grep("var dob\\s*=\\s*[0-9]{8}",
+                   js_lines, value = TRUE, perl = TRUE)
+
+  if (length(dob_line) != 1L) {
+    stop("Player birth date not found.", call. = FALSE)
+  }
+
+  dob <- sub(".*dob\\s*=\\s*([0-9]{8}).*", "\\1",
+             dob_line, perl = TRUE)
+
+  birth <- as.Date(dob, format = "%Y%m%d")
+
+  if (is.na(birth)) {
+    stop("Invalid player birth date.", call. = FALSE)
+  }
+
+  birth
 }

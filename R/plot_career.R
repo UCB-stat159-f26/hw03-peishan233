@@ -1,3 +1,5 @@
+utils::globalVariables(c("player_age", "age_difference", "result"))
+
 #' Plot Tennis Career Matches
 #'
 #' @param data A cleaned data frame from get_career_data().
