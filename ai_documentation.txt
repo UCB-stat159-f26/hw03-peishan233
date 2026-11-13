@@ -1,0 +1,18 @@
+AI Tool: ChatGPT
+Model: GPT-6 (current session; exact models used in earlier sessions should be verified)
+Use during: 11/9–11/13/2026
+
+
+1. Automated Unit Tests
+I used ChatGPT to learn how to write automated unit tests with testthat. Previously, I usually checked whether my code ran successfully or whether the final output looked correct. ChatGPT teach me how to create mock match records and write tests for name formatting, JavaScript parsing, date conversion, age calculations, invalid records, and scatter plot outputs. We also used local_mocked_bindings() to test functions without accessing Tennis Abstract's live server. I ran the tests repeatedly in JupyterLab and checked the results. The final test suite passed 49 expectations with no failures or warnings.
+Example prompts:
+- "How can I test my functions without downloading real data?"
+- "How do expect_equal() and expect_error() work?"
+- "How can I confirm that my plot uses the correct axes and colors?"
+
+2. Debugging and Package Validation
+ChatGPT helped me understand several NOTES reported by devtools::check(). It included non-standard top-level files, an unqualified tail() function, and global variable binding issues in ggplot2. Following the explanations, I updated .Rbuildignore, used utils::tail(), and declared the ggplot variables with utils::globalVariables(). After making these changes, I reran the package checks. The final result contained 0 errors, 0 warnings, and 1 note related to the environment's inability to verify the current system time.
+Example prompts:
+- "What do the NOTES from devtools::check() mean?"
+- "Why does R report undefined variables when my scatter plot works correctly?"
+- "How can I verify that the package installs correctly from GitHub?"
